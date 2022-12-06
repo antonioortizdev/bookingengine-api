@@ -4,7 +4,8 @@ namespace Src\Product\Domain\Entity;
 
 class Product {
     public function __construct(
-        private string $name,
-        private string $slug
+        public readonly int $id,
+        public string $name,
+        public string $slug
     ) {}
 }
