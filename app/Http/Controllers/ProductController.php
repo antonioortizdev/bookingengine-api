@@ -2,67 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Src\Product\Application\UseCase\CreateProduct;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+use Src\Product\Application\UseCase\SaveProduct;
 use Src\Product\Domain\Entity\Product;
-use Src\Product\Infrastructure\Eloquent\Repository\EloquentRepository;
+use Src\Product\Domain\Repository\ProductRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-class ProductController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
+class ProductController {
+    public function __construct(
+        private ProductRepository $productRepository,
+        private SaveProduct $saveProduct,
+    ) {}
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = new Product($request->name, $request->slug);
-        $createProductUseCase = new CreateProduct(new EloquentRepository());
-        $this->createProductUseCase($product);
-    }
+        $product = Product::fromPrimitives($request->all());
+        ($this->saveProduct)($product);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return new JsonResponse(['id' => $product->id]);
     }
 }
