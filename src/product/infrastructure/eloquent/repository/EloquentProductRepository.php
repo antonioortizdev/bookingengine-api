@@ -2,44 +2,34 @@
 
 namespace Src\Product\Infrastructure\Eloquent\Repository;
 
-use Illuminate\Database\Eloquent\Model;
 use Src\Product\Domain\Repository\ProductRepository;
 use Src\Product\Domain\Entity\Product;
+use App\Models\Product as ProductModel;
 
 class EloquentProductRepository implements ProductRepository
 {
-    protected Model $model;
-
-    public function __construct(Model $model)
-    {
-        $this->model = $model;
-    }
+    public function __construct(private ProductModel $productModel) {}
 
     /**
      * @return Product[]
      */
-    public function find(int $id): array
+    public function find(array $filters): array
     {
-        return $this->model
-            ->where('id', $id)
+        return $this->productModel->where($filters)
             ->get()
             ->map(function ($product) {
-                return new Product(
-                    $product->id,
-                    $product->name,
-                    $product->slug
-                );
+                return Product::fromPrimitives($product->toArray());
             })
             ->toArray();
     }
 
     public function save(Product $product): void
     {
-        $this->model->updateOrCreate(
-            ['id' => $product->id],
+        $this->productModel->create(
             [
-                'name' => $product->name,
-                'slug' => $product->slug
+                'id' => (string)$product->id,
+                'name' => (string)$product->name,
+                'slug' => (string)$product->slug
             ]
         );
     }
