@@ -8,6 +8,6 @@ interface ProductRepository {
     /**
      * @return Product[]
      */
-    public function find(int $id): array;
+    public function find(array $filters): array;
     public function save(Product $product): void;
 }
